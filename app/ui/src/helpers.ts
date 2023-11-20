@@ -278,6 +278,12 @@ export async function createRequestData(state, request, environment, setEnvironm
         })
     }
 
+    if (urlWithEnvironmentVariablesSubstituted.startsWith('/')) {
+        // relative URL, adding current host and srv dest prefix to the URL
+        let host = window.location.protocol + "//" + window.location.host;
+        urlWithEnvironmentVariablesSubstituted = host + '/srv/dest/call?dest=' + request.dest + '&uri=' + urlWithEnvironmentVariablesSubstituted;
+    }
+
     const url = new URL(urlWithEnvironmentVariablesSubstituted)
 
     if('parameters' in request && request.parameters) {

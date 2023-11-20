@@ -4,8 +4,9 @@
             <select v-model="activeTab.method">
                 <option v-for="method in methods">{{ method }}</option>
             </select>
+            <input type="text" v-model="activeTab.dest" spellcheck="false" placeholder="Destination" size="15" style="border: 0px; outline: 0"/>
             <div class="code-mirror-input-container">
-                <CodeMirrorSingleLine v-model="activeTab.url" placeholder="Enter request URL" :key="'address-bar-' + activeTab._id" @keydown="handleAddressBarKeyDown" @paste="handleAdressBarPaste" />
+                <CodeMirrorSingleLine v-model="activeTab.url" placeholder="Request URI (/ping)" :key="'address-bar-' + activeTab._id" @keydown="handleAddressBarKeyDown" @paste="handleAdressBarPaste" />
             </div>
             <button @click="sendRequest">Send</button>
         </div>
