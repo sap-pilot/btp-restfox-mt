@@ -1,0 +1,14 @@
+{
+    "name": "btp-restfox-mt-approuter",
+    "dependencies": {
+      "@sap/approuter": "^14.0.0"
+    },
+    "engines": {
+      "node": "^18.0.0"
+    },
+    "scripts": {
+      "start": "node node_modules/@sap/approuter/approuter.js",
+      "local": "PORT=3012 node node_modules/@sap/approuter/approuter.js -w ./local"
+    }
+  }
+  

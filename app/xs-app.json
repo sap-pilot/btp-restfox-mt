@@ -1,0 +1,28 @@
+{
+    "welcomeFile": "/index.html",
+    "authenticationMethod": "route",
+    "logout": {
+        "logoutEndpoint": "/logout",
+        "logoutPage": "/public/logout.html"
+    },
+    "routes": [
+        {
+            "source": "^/user-api(.*)",
+            "target": "$1",
+            "service": "sap-approuter-userapi",
+            "authenticationType": "xsuaa"
+        },
+        {
+            "source": "^/srv/(.*)$",
+            "target": "$1",
+            "destination": "srv-api",
+            "csrfProtection": true
+        },
+        {
+            "source": "^/(.*)$",
+            "target": "$1",
+            "localDir": "./ui/dist",
+            "cacheControl": "max-age=0, must-revalidate"
+        }
+    ]
+}
