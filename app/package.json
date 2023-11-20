@@ -7,6 +7,7 @@
       "node": "^18.0.0"
     },
     "scripts": {
+      "build": "cd ui && npm ci && vite build --mode web-standalone",
       "start": "node node_modules/@sap/approuter/approuter.js",
       "local": "PORT=3012 node node_modules/@sap/approuter/approuter.js -w ./local"
     }

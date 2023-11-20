@@ -1,0 +1,58 @@
+{
+    "name": "btp-restfox-mt",
+    "version": "0.0.1",
+    "description": "BTP rest client to call destinations like Postman based on Restfox",
+    "repository": "https://github.com/sap-pilot/btp-restfox-mt",
+    "license": "MIT",
+    "private": true,
+    "dependencies": {
+      "@sap-cloud-sdk/http-client": "^3.5.0",
+      "@sap-cloud-sdk/resilience": "^3.5.0",
+      "@sap-pilot/btp-util": "^0.0.1",
+      "@sap/cds": "^7",
+      "@sap/xsenv": "^4.0.0",
+      "@sap/xssec": "^3.3.4",
+      "express": "^4",
+      "passport": "^0.6.0"
+    },
+    "devDependencies": {
+      "@cap-js/sqlite": "^1",
+      "@sap/cds-dk": "^7",
+      "@sap/ux-specification": "^1.108.14"
+    },
+    "scripts": {
+      "start": "cds-serve",
+      "build": "mbt build -p=cf --mtar=BTP-Restfox.mtar",
+      "deploy": "cf deploy mta_archives/BTP-Restfox.mtar -f --retries 1",
+      "bd": "mbt build -p=cf --mtar=BTP-Restfox.mtar && cf deploy mta_archives/BTP-Restfox.mtar -f --retries 1",
+      "undeploy": "cf undeploy BTP-Restfox --delete-services --delete-service-keys -f",
+      "gen-env": "CF_APP_NAME=BTP-Restfox-srv curl https://raw.githubusercontent.com/sap-pilot/btp-util/main/cf/gen-default-env.js | node",
+      "watch-diagnosis": "cds watch --open app/ui/dist/index.html"
+    },
+    "sapux": [
+      "app/diagnosis"
+    ],
+    "cds": {
+      "auth": {
+        "passport": {
+          "strategy": "xsuaa"
+        }
+      },
+      "requires": {
+        "uaa": {
+          "kind": "xsuaa"
+        },
+        "BTP_DUMMY": {
+          "kind": "rest",
+          "credentials": {
+            "destination": "BTP_DUMMY",
+            "path": "/",
+            "forwardAuthToken": true
+          }
+        }
+      },
+      "odata": {
+        "version": "v4"
+      }
+    }
+  }

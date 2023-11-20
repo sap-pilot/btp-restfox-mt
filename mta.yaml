@@ -1,0 +1,116 @@
+---
+_schema-version: '3.1'
+ID: BTP-Restfox
+version: 0.0.1
+description: "BTP Rest client to call destinations like Postman based on Restfox"
+modules:
+- name: BTP-Restfox-srv
+  type: nodejs
+  path: gen/srv
+  parameters:
+    buildpack: nodejs_buildpack
+  properties:
+    DEST_OVERRIDE_WHITELIST_EXP: '(.*)'
+  provides:
+    - name: srv-api # required by consumers of CAP services (e.g. approuter)
+      properties:
+        srv-url: ${default-url}
+  requires: 
+    - name: BTP-Restfox-uaa
+    - name: BTP-Restfox-conn
+    - name: BTP-Restfox-dest
+  build-parameters:
+    ignore:
+    - default-*.json
+    - .env
+    - '*node_modules*'
+- name: BTP-Restfox-app
+  type: approuter.nodejs
+  path: app
+  build-parameters:
+    ignore:
+      - default-*.json
+      - .env
+      - "*node_modules*"
+  parameters:
+    memory: 256M
+    host: btp-restfox-${space}
+    disk-quota: 256M
+    keep-existing-routes: true
+  requires:
+    - name: BTP-Restfox-uaa
+    - name: BTP-Restfox-dest
+    - name: BTP-Restfox-conn
+    - name: srv-api
+      group: destinations
+      properties:
+        name: srv-api
+        url: ~{srv-url}
+        timeout: 600000
+        forwardAuthToken: true
+- name: BTP-Restfox-dest-content
+  type: com.sap.application.content
+  requires:
+  - name: srv-api
+  - name: BTP-Restfox-dest
+    parameters:
+      content-target: true
+  - name: BTP-Restfox-uaa
+    parameters:
+      service-key:
+        name: BTP-Restfox-uaa-key
+  parameters:
+    content:
+      instance:
+        destinations:
+        - Name: BTP-Restfox-uaa
+          Authentication: OAuth2UserTokenExchange
+          ServiceInstanceName: BTP-Restfox-uaa
+          ServiceKeyName: BTP-Restfox-uaa-key
+          sap.cloud.service: cvx.poc.dynamicbackend
+        - Name: BTP-Restfox-srv
+          Authentication: OAuth2ClientCredentials
+          Description: BTP-Restfox CAP service
+          HTML5.DynamicDestination: true
+          HTML5.ForwardAuthToken: true
+          ServiceInstanceName: BTP-Restfox-uaa
+          ServiceKeyName: BTP-Restfox-uaa-key
+          sap.cloud.service: cvx.poc.dynamicbackend
+          URL: ~{srv-api/srv-url}
+        existing_destinations_policy: update
+  build-parameters:
+    no-source: true
+resources:
+- name: BTP-Restfox-dest
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+    service: destination
+    service-name: BTP-Restfox-dest
+    service-plan: lite
+  requires:
+  - name: srv-api
+- name: BTP-Restfox-uaa
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      xsappname: BTP-Restfox-${space}
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: BTP-Restfox-uaa
+    service-plan: application
+- name: BTP-Restfox-conn
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: connectivity
+    service-plan: lite
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true
+build-parameters:
+  before-all:
+  - builder: custom
+    commands:
+    - npm ci
+    - npx -p @sap/cds-dk cds build --production
