@@ -1,5 +1,0 @@
-{
-    "scripts": {
-        "zip": "git stash && cd src && zip -r - . > ../src.zip && git stash pop"
-    }
-}
