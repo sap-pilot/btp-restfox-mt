@@ -30,6 +30,7 @@
             </template>
             <a href="#" @click.prevent="showPluginsManager" class="bl">Plugins</a>
             <a href="#" @click.prevent="showSettings" class="bl br">Settings</a>
+            <a href="/logout" class="bl br">Logout</a>
             <span class="spacer"></span>
             <div>
                 <a class="gh-button-container" href="https://github.com/sap-pilot/btp-restfox-mt" rel="noopener" target="_blank" title="Star Restfox" aria-label="Star BTP-Restfox-MT on GitHub">

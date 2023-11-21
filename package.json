@@ -29,9 +29,6 @@
       "gen-env": "CF_APP_NAME=BTP-Restfox-srv curl https://raw.githubusercontent.com/sap-pilot/btp-util/main/cf/gen-default-env.js | node",
       "watch-diagnosis": "cds watch --open app/ui/dist/index.html"
     },
-    "sapux": [
-      "app/diagnosis"
-    ],
     "cds": {
       "auth": {
         "passport": {
@@ -46,7 +43,7 @@
           "kind": "rest",
           "credentials": {
             "destination": "BTP_DUMMY",
-            "path": "/",
+            "path": "",
             "forwardAuthToken": true
           }
         }

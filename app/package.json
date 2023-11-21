@@ -7,7 +7,9 @@
       "node": "^18.0.0"
     },
     "scripts": {
-      "build": "cd ui && npm ci && vite build --mode web-standalone",
+      "build": "cd ui && npm ci && vite build --mode web-standalone && cd ..",
+      "deploy": "cf push BTP-Restfox-app",
+      "bd": "cd ui && npm ci && vite build --mode web-standalone && cd .. && cf push BTP-Restfox-app",
       "start": "node node_modules/@sap/approuter/approuter.js",
       "local": "PORT=3012 node node_modules/@sap/approuter/approuter.js -w ./local"
     }

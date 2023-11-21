@@ -149,59 +149,49 @@ export async function fetchWrapper(url, method, headers, body, abortControllerSi
         })
     }
 
-    // FIXME: temporarily disable proxy mode
     // if(import.meta.env.MODE === 'web-standalone') {
-    //     const proxyHeaders = {
-    //         'x-proxy-req-url': url,
-    //         'x-proxy-req-method': method
-    //     }
+    // MOD: use proxy in destination mode
+    const startTime = new Date();
+    let response = null;
+    if(url.dest) {
+        const proxyHeaders = {
+            'x-proxy-req-url': url,
+            'x-proxy-req-method': method,
+            'x-proxy-req-dest': url.dest,
+            'x-proxy-req-uri':  url.uri,
+            'content-type' : 'application/json'
+        };
+        Object.keys(headers).forEach(header => {
+            proxyHeaders[`x-proxy-req-header-${header}`] = headers[header]
+        });
+        response = await fetch('/srv/dest/proxy', {
+            method: 'POST',
+            headers: proxyHeaders,
+            body: method !== 'GET' ? body : undefined,
+            signal: abortControllerSignal
+        })
+    } else {
+        // direct call without proxy
+        response = await fetch(url, {
+            method,
+            headers,
+            body: method !== 'GET' ? body : undefined,
+            signal: abortControllerSignal
+        });
+    }
 
-    //     Object.keys(headers).forEach(header => {
-    //         proxyHeaders[`x-proxy-req-header-${header}`] = headers[header]
-    //     })
 
-    //     const response = await fetch('/proxy', {
-    //         method: 'POST',
-    //         headers: proxyHeaders,
-    //         body: method !== 'GET' ? body : undefined,
-    //         signal: abortControllerSignal
-    //     })
+    const endTime = new Date();
 
-    //     const responseBody = await response.json()
+    const status = response.status;
+    const statusText = response.statusText;
+    const responseHeaders = [...response.headers.entries()];
 
-    //     return new Promise((resolve, reject) => {
-    //         if(responseBody.event === 'response') {
-    //             responseBody.eventData.buffer = new Uint8Array(responseBody.eventData.buffer).buffer
-    //             resolve(responseBody.eventData)
-    //         }
+    const responseBlob = await response.blob();
+    const mimeType = responseBlob.type;
+    const buffer = await responseBlob.arrayBuffer();
 
-    //         if(responseBody.event === 'responseError') {
-    //             responseBody.eventData = new Error(responseBody.eventData)
-    //             reject(responseBody.eventData)
-    //         }
-    //     })
-    // }
-
-    const startTime = new Date()
-
-    const response = await fetch(url, {
-        method,
-        headers,
-        body: method !== 'GET' ? body : undefined,
-        signal: abortControllerSignal
-    })
-
-    const endTime = new Date()
-
-    const status = response.status
-    const statusText = response.statusText
-    const responseHeaders = [...response.headers.entries()]
-
-    const responseBlob = await response.blob()
-    const mimeType = responseBlob.type
-    const buffer = await responseBlob.arrayBuffer()
-
-    const timeTaken = endTime - startTime
+    const timeTaken = endTime - startTime;
 
     return {
         status,
@@ -210,7 +200,7 @@ export async function fetchWrapper(url, method, headers, body, abortControllerSi
         mimeType,
         buffer,
         timeTaken
-    }
+    };
 }
 
 export async function createRequestData(state, request, environment, setEnvironmentVariable, plugins) {
@@ -279,18 +269,20 @@ export async function createRequestData(state, request, environment, setEnvironm
         })
     }
 
-    if (urlWithEnvironmentVariablesSubstituted.startsWith('/')) {
+    // MOD: add hostname to relative URL and destination to url object;
+    let url = null, host = null;
+    if (!urlWithEnvironmentVariablesSubstituted.startsWith('http')) {
         // relative URL, adding current host and srv dest prefix to the URL
-        let host = window.location.protocol + "//" + window.location.host;
-        if (request.method === 'POST' || request.method === 'post') {
-            urlWithEnvironmentVariablesSubstituted = host + '/srv/dest/postDestination?dest=' + request.dest + '&method='+ request.method+'&uri=' + urlWithEnvironmentVariablesSubstituted;
-        } else {
-            urlWithEnvironmentVariablesSubstituted = host + '/srv/dest/getDestination?dest=' + request.dest + '&method='+ request.method+'&uri=' + urlWithEnvironmentVariablesSubstituted;
-        }
-        console.log(`# replaced URI with absolute url: ${urlWithEnvironmentVariablesSubstituted}`);
+        host = window.location.protocol + "//" + window.location.host;
+        url = new URL(urlWithEnvironmentVariablesSubstituted, host);
+    } else {
+        url = new URL(urlWithEnvironmentVariablesSubstituted)
     }
-
-    const url = new URL(urlWithEnvironmentVariablesSubstituted)
+    if (request.dest) {
+        // destination specified in request, now add to headers
+       url.dest = request.dest;
+        // method and URL will be added later
+    }
 
     if('parameters' in request && request.parameters) {
         request.parameters.filter(item => !item.disabled).forEach(param => {
@@ -299,6 +291,11 @@ export async function createRequestData(state, request, environment, setEnvironm
                 substituteEnvironmentVariables(environment, param.value)
             )
         })
+    }
+
+    // MOD: add uri (relative URL) to url object
+    if (host) {
+        url.uri = url.toString().substring(host.length);
     }
 
     const headers = {}

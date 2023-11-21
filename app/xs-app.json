@@ -1,5 +1,5 @@
 {
-    "welcomeFile": "/ui/index.html",
+    "welcomeFile": "/app/index.html",
     "authenticationMethod": "route",
     "logout": {
         "logoutEndpoint": "/logout",
@@ -13,21 +13,28 @@
             "authenticationType": "xsuaa"
         },
         {
-            "source": "^/srv/(.*)$",
+            "source": "^/srv(.*)$",
             "target": "$1",
             "destination": "srv-api",
             "authenticationType": "xsuaa",
             "csrfProtection": false
         },
         {
-            "source": "^/src/(.*)$",
+            "source": "^/public(.*)$",
+            "target": "$1",
+            "localDir": "./public",
+            "authenticationType": "none",
+            "csrfProtection": false
+        },
+        {
+            "source": "^/src(.*)$",
             "target": "$1",
             "localDir": "./ui/src",
             "authenticationType": "xsuaa",
             "cacheControl": "max-age=0, must-revalidate"
         },
         {
-            "source": "^/ui/(.*)$",
+            "source": "^/app(.*)$",
             "target": "$1",
             "localDir": "./ui/dist",
             "authenticationType": "xsuaa",
