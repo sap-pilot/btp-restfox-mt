@@ -321,6 +321,8 @@ export default {
                 savedDisablePageViewAnalyticsTracking = false
             }
         }
+        
+        savedDisablePageViewAnalyticsTracking = true; // MOD: always disable analytics
 
         if(!savedDisablePageViewAnalyticsTracking) {
             const script = document.createElement('script')

@@ -17,12 +17,12 @@
             </div>
             <div style="padding-top: 1rem"></div>
             <div style="padding-top: 1rem"></div>
-            <div>
+            <!--<div>
                 <label style="display: flex;">
                     <input type="checkbox" v-model="disablePageViewAnalyticsTracking"> <div style="margin-left: 0.5rem;">Disable Page View Analytics Tracking</div> <div style="margin-left: 0.5rem;"></div>
                 </label>
                 <div style="margin-left: 1.3rem; margin-top: 0.3rem;">Disabling this will prevent the application from sending page view event to the <a href="https://umami.is" target="_blank">analytics server</a> when the application is opened. Please note that we do not track any other actions or the requests you make in the application. Click <a href="https://umami.is/docs/tracker-functions#:~:text=Pageviews,Website%20ID%20(required)" target="_blank">here</a> to see what data gets collected.</div>
-            </div>
+            </div>-->
             <div style="padding-top: 1rem"></div>
             <div style="padding-top: 1rem"></div>
             <div style="font-style: italic; text-align: center;">Changes you make here will be auto saved</div>
@@ -51,7 +51,7 @@ export default {
             sidebarWidth: null,
             requestPanelRatio: null,
             responsePanelRatio: null,
-            disablePageViewAnalyticsTracking: false,
+            disablePageViewAnalyticsTracking: true,
         }
     },
     computed: {
