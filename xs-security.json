@@ -1,6 +1,5 @@
 {
     "xsappname": "BTP-Restfox",
-    "tenant-mode": "dedicated",
     "description": "BTP rest client to call destinations like Postman based on Restfox",
     "scopes": [
       {
@@ -10,6 +9,13 @@
       {
         "name": "$XSAPPNAME.user",
         "description": "BTP rest client user scope"
+      },
+      {
+        "name": "$XSAPPNAME.mtcallback",
+        "description": "Subscription via SaaS Registry",
+        "grant-as-authority-to-apps": [
+            "$XSAPPNAME(application,sap-provisioning,tenant-onboarding)"
+        ]
       }
     ],
     "attributes": [
@@ -29,7 +35,7 @@
       },
       {
         "name": "BTP-Restfox-User",
-        "description": "BTP user offboarding user role template",
+        "description": "BTP rest client user role template",
         "scope-references": [
           "$XSAPPNAME.user"
         ],

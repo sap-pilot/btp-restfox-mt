@@ -1,11 +1,19 @@
 ---
 _schema-version: '3.1'
-ID: BTP-Restfox
+ID: BTP-Restfox-MT
 version: 0.0.1
-description: "BTP Rest client to call destinations like Postman based on Restfox"
+description: "BTP rest client to test destinations like Postman based on Restfox"
+parameters:
+#  deploy_mode: html5-repo
+  enable-parallel-deployments: true
+build-parameters:
+  before-all:
+  - builder: custom
+    commands:
+    - npm ci
+    - npx -p @sap/cds-dk cds build --production
 modules:
-
-- name: BTP-Restfox-srv
+- name: BTP-Restfox-MT-srv
   type: nodejs
   path: gen/srv
   build-parameters:
@@ -25,11 +33,10 @@ modules:
       properties:
         srv-url: ${default-url}
   requires: 
-    - name: BTP-Restfox-uaa
-    - name: BTP-Restfox-conn
-    - name: BTP-Restfox-dest
-
-- name: BTP-Restfox-app
+    - name: BTP-Restfox-MT-xsuaa
+    - name: BTP-Restfox-MT-conn
+    - name: BTP-Restfox-MT-dest
+- name: BTP-Restfox-MT-app
   type: approuter.nodejs
   path: app
   build-parameters:
@@ -40,15 +47,17 @@ modules:
       - web-standalone/node_modules
       - ui/node_modules
   parameters:
-    host: btp-restfox-${space}
+    host: btp-restfox-${space} # irregular host name like underscore (_) will be converted to dash (-) after approuter gets deployed
     memory: 256M
     disk-quota: 512M
     keep-existing-routes: true
     enable-ssh: true
+  properties:
+    TENANT_HOST_PATTERN: "^(.*)-brestfox-(.*).${default-domain}" # TENANT will be determined only by first regx group, left second group as wildcard since space name could be different than actual host name
   requires:
-    - name: BTP-Restfox-uaa
-    - name: BTP-Restfox-dest
-    - name: BTP-Restfox-conn
+    - name: BTP-Restfox-MT-xsuaa
+    - name: BTP-Restfox-MT-dest
+    - name: BTP-Restfox-MT-conn
     - name: srv-api
       group: destinations
       properties:
@@ -56,76 +65,115 @@ modules:
         url: ~{srv-url}
         timeout: 600000
         forwardAuthToken: true
-
-- name: BTP-Restfox-dest-content
+    - name: mtx-api
+      group: destinations
+      properties:
+        name: mtx-api # must be used in xs-app.json as well
+        url: ~{mtx-url}
+  provides:
+    - name: app-api
+      properties:
+        app-protocol: ${protocol}
+        app-host: ${host} # unlike default-uri or default-host which was pre-calculated with illegal character (space, underscore etc), ${host} holds the actual hostname after deployment (underscore converted to dash)
+- name: BTP-Restfox-MT-mtx
+  type: nodejs
+  path: gen/mtx/sidecar
+  build-parameters:
+    builder: npm-ci
+    ignore:
+      - default-*.json
+      - .env
+      - "*node_modules*"
+  requires:
+    - name: app-api
+      properties:
+        SUBSCRIPTION_URL: ~{app-protocol}://\${tenant_subdomain}-~{app-host}.${default-domain} # TODO: create route in provider space (maually create route for now)
+    - name: BTP-Restfox-MT-xsuaa
+    - name: BTP-Restfox-MT-registry
+    - name: BTP-Restfox-MT-conn
+    - name: BTP-Restfox-MT-dest
+  parameters:
+    memory: 256M
+    disk-quota: 512M
+  provides:
+    - name: mtx-api
+      properties:
+        mtx-url: ${default-url}
+- name: BTP-Restfox-MT-dest-content
   type: com.sap.application.content
   requires:
   - name: srv-api
-  - name: BTP-Restfox-dest
+  - name: BTP-Restfox-MT-dest
     parameters:
       content-target: true
-  - name: BTP-Restfox-uaa
+  - name: BTP-Restfox-MT-xsuaa
     parameters:
       service-key:
-        name: BTP-Restfox-uaa-key
+        name: BTP-Restfox-MT-xsuaa-key
   parameters:
     content:
       instance:
         destinations:
-        - Name: BTP-Restfox-uaa
+        - Name: BTP-Restfox-MT-xsuaa
           Authentication: OAuth2UserTokenExchange
-          ServiceInstanceName: BTP-Restfox-uaa
-          ServiceKeyName: BTP-Restfox-uaa-key
+          ServiceInstanceName: BTP-Restfox-MT-xsuaa
+          ServiceKeyName: BTP-Restfox-MT-xsuaa-key
           sap.cloud.service: cvx.poc.dynamicbackend
-        - Name: BTP-Restfox-srv
+        - Name: BTP-Restfox-MT-srv
           Authentication: OAuth2ClientCredentials
-          Description: BTP-Restfox CAP service
+          Description: BTP-Restfox-MT CAP service
           HTML5.DynamicDestination: true
           HTML5.ForwardAuthToken: true
-          ServiceInstanceName: BTP-Restfox-uaa
-          ServiceKeyName: BTP-Restfox-uaa-key
+          ServiceInstanceName: BTP-Restfox-MT-xsuaa
+          ServiceKeyName: BTP-Restfox-MT-xsuaa-key
           sap.cloud.service: cvx.poc.dynamicbackend
           URL: ~{srv-api/srv-url}
         existing_destinations_policy: update
   build-parameters:
     no-source: true
-
 resources:
-
-- name: BTP-Restfox-dest
+- name: BTP-Restfox-MT-xsuaa
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      xsappname: BTP-Restfox-MT-${space}
+      tenant-mode: shared
+    path: ./xs-security.json
+    service: xsxsuaa
+    service-name: BTP-Restfox-MT-xsuaa
+    service-plan: application
+- name: BTP-Restfox-MT-registry
+  type: org.cloudfoundry.managed-service
+  requires:
+    - name: mtx-api
+  parameters:
+    service: saas-registry
+    service-plan: application
+    config:
+      xsappname: BTP-Restfox-MT-${space}
+      appName: BTP-Restfox-MT-${space}
+      displayName: BTP-Restfox-MT
+      description: BTP rest client to test destinations like Postman based on Restfox (${space})
+      category: 'BTP Utilities'
+      appUrls:
+        getDependencies: ~{mtx-api/mtx-url}/-/cds/saas-provisioning/dependencies
+        onSubscription: ~{mtx-api/mtx-url}/-/cds/saas-provisioning/tenant/{tenantId}
+        onSubscriptionAsync: true
+        onUnSubscriptionAsync: true
+        onUpdateDependenciesAsync: true
+        callbackTimeoutMillis: 300000 # Increase if your deployments are taking longer than that
+- name: BTP-Restfox-MT-dest
   type: org.cloudfoundry.managed-service
   parameters:
     config:
       HTML5Runtime_enabled: true
     service: destination
-    service-name: BTP-Restfox-dest
+    service-name: BTP-Restfox-MT-dest
     service-plan: lite
   requires:
   - name: srv-api
-
-- name: BTP-Restfox-uaa
-  type: org.cloudfoundry.managed-service
-  parameters:
-    config:
-      xsappname: BTP-Restfox-${space}
-    path: ./xs-security.json
-    service: xsuaa
-    service-name: BTP-Restfox-uaa
-    service-plan: application
-
-- name: BTP-Restfox-conn
+- name: BTP-Restfox-MT-conn
   type: org.cloudfoundry.managed-service
   parameters:
     service: connectivity
     service-plan: lite
-    
-parameters:
-#  deploy_mode: html5-repo
-  enable-parallel-deployments: true
-
-build-parameters:
-  before-all:
-  - builder: custom
-    commands:
-    - npm ci
-    - npx -p @sap/cds-dk cds build --production
