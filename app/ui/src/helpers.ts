@@ -837,6 +837,7 @@ function importRestfoxV1(collections, workspaceId) {
                     name: item.name,
                     url: item.url,
                     method: item.method,
+                    dest: item.dest,
                     body: item.body,
                     headers: item.headers ? item.headers.map(header => ({
                         name: header.name,
