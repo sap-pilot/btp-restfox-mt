@@ -21,7 +21,9 @@
       "@sap/ux-specification": "^1.108.14"
     },
     "scripts": {
-      "start": "cds-serve",
+      "start": "npx --node-options=\"--inspect\" cds-serve",
+      "start-normal": "cds-serve",
+      "connect-debuger": "cf ssh -N -T -L 9229:127.0.0.1:9229 BTP-Restfox-srv",
       "build": "mbt build -p=cf --mtar=BTP-Restfox.mtar",
       "deploy": "cf deploy mta_archives/BTP-Restfox.mtar -f --retries 1",
       "bd": "mbt build -p=cf --mtar=BTP-Restfox.mtar && cf deploy mta_archives/BTP-Restfox.mtar -f --retries 1",

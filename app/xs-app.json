@@ -34,6 +34,13 @@
             "cacheControl": "max-age=0, must-revalidate"
         },
         {
+            "source": "^/app/index.html(.*)$",
+            "target": "index.html$1",
+            "localDir": "./ui/dist",
+            "authenticationType": "xsuaa",
+            "cacheControl": "no-cache, no-store, must-revalidate"
+        },
+        {
             "source": "^/app(.*)$",
             "target": "$1",
             "localDir": "./ui/dist",
