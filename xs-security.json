@@ -1,49 +1,48 @@
 {
-    "xsappname": "BTP-Restfox",
-    "description": "BTP rest client to call destinations like Postman based on Restfox",
-    "scopes": [
-      {
-        "name": "uaa.user",
-        "description": "UAA"
-      },
-      {
-        "name": "$XSAPPNAME.user",
-        "description": "BTP rest client user scope"
-      },
-      {
-        "name": "$XSAPPNAME.mtcallback",
-        "description": "Subscription via SaaS Registry",
-        "grant-as-authority-to-apps": [
-            "$XSAPPNAME(application,sap-provisioning,tenant-onboarding)"
-        ]
-      }
-    ],
-    "attributes": [
-      {
-        "name": "ALLOWED_DESTINATIONS",
-        "valueType": "string",
-        "valueRequired": "false"
-      }
-    ],
-    "role-templates": [
-      {
-        "name": "Token_Exchange",
-        "description": "UAA",
-        "scope-references": [
-          "uaa.user"
-        ]
-      },
-      {
-        "name": "BTP-Restfox-User",
-        "description": "BTP rest client user role template",
-        "scope-references": [
-          "$XSAPPNAME.user"
-        ],
-        "attribute-references": [
-          {
-            "name": "ALLOWED_DESTINATIONS"
-          }
-        ]
-      }
-    ]
-  }
+  "description": "BTP rest client to call destinations like Postman based on Restfox",
+  "scopes": [
+    {
+      "name": "uaa.user",
+      "description": "UAA"
+    },
+    {
+      "name": "$XSAPPNAME.User",
+      "description": "BTP rest client user scope"
+    },
+    {
+      "name": "$XSAPPNAME.mtcallback",
+      "description": "Subscription via SaaS Registry",
+      "grant-as-authority-to-apps": [
+        "$XSAPPNAME(application,sap-provisioning,tenant-onboarding)"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "name": "ALLOWED_DESTINATIONS",
+      "valueType": "string",
+      "valueRequired": "false"
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "Token_Exchange",
+      "description": "UAA",
+      "scope-references": [
+        "uaa.user"
+      ]
+    },
+    {
+      "name": "BTP-Restfox-User",
+      "description": "BTP rest client user role template",
+      "scope-references": [
+        "$XSAPPNAME.User"
+      ],
+      "attribute-references": [
+        {
+          "name": "ALLOWED_DESTINATIONS"
+        }
+      ]
+    }
+  ]
+}

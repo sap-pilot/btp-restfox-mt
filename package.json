@@ -11,6 +11,7 @@
         "@sap-pilot/btp-util": "^0.0.1",
         "@sap/cds": "^7",
         "@sap/cds-mtxs": "^1.13.0",
+        "@sap/hana-client": "^2.18.27",
         "@sap/xsenv": "^4.0.0",
         "@sap/xssec": "^3.3.4",
         "express": "^4",
@@ -22,14 +23,15 @@
         "@sap/ux-specification": "^1.108.14"
     },
     "scripts": {
-        "start": "npx --node-options=\"--inspect\" cds-serve",
-        "start-normal": "cds-serve",
-        "connect-debuger": "cf ssh -N -T -L 9229:127.0.0.1:9229 BTP-Restfox-srv",
-        "build": "mbt build -p=cf --mtar=BTP-Restfox.mtar",
-        "deploy": "cf deploy mta_archives/BTP-Restfox.mtar -f --retries 1",
-        "bd": "mbt build -p=cf --mtar=BTP-Restfox.mtar && cf deploy mta_archives/BTP-Restfox.mtar -f --retries 1",
-        "undeploy": "cf undeploy BTP-Restfox --delete-services --delete-service-keys -f",
-        "gen-env": "CF_APP_NAME=BTP-Restfox-srv curl https://raw.githubusercontent.com/sap-pilot/btp-util/main/cf/gen-default-env.js | node",
+        "start-debug": "npx --node-options=\"--inspect\" cds-serve",
+        "start": "cds-serve",
+        "connect-debugger": "cf ssh -N -T -L 9229:127.0.0.1:9229 BTP-Restfox-MT-srv",
+        "logs": "cf logs BTP-Restfox-MT-srv",
+        "build": "mbt build -p=cf --mtar=BTP-Restfox-MT.mtar",
+        "deploy": "cf deploy mta_archives/BTP-Restfox-MT.mtar -f --retries 1",
+        "bd": "mbt build -p=cf --mtar=BTP-Restfox-MT.mtar && cf deploy mta_archives/BTP-Restfox-MT.mtar -f --retries 1",
+        "undeploy": "cf undeploy BTP-Restfox-MT --delete-services --delete-service-keys -f",
+        "gen-env": "CF_APP_NAME=BTP-Restfox-MT-srv curl https://raw.githubusercontent.com/sap-pilot/btp-util/main/cf/gen-default-env.js | node",
         "watch-diagnosis": "cds watch --open app/ui/dist/index.html"
     },
     "cds": {

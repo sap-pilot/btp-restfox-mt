@@ -24,7 +24,7 @@ modules:
   parameters:
     buildpack: nodejs_buildpack
     memory: 256M
-    disk-quota: 512M
+    disk-quota: 1024M
     enable-ssh: true
   properties:
     DEST_OVERRIDE_WHITELIST_EXP: '(.*)'
@@ -34,6 +34,7 @@ modules:
         srv-url: ${default-url}
   requires: 
     - name: BTP-Restfox-MT-xsuaa
+    - name: BTP-Restfox-MT-db
     - name: BTP-Restfox-MT-conn
     - name: BTP-Restfox-MT-dest
 - name: BTP-Restfox-MT-app
@@ -47,13 +48,13 @@ modules:
       - web-standalone/node_modules
       - ui/node_modules
   parameters:
-    host: btp-restfox-${space} # irregular host name like underscore (_) will be converted to dash (-) after approuter gets deployed
+    host: btprestfox-${space} # irregular host name like underscore (_) will be converted to dash (-) after approuter gets deployed
     memory: 256M
     disk-quota: 512M
     keep-existing-routes: true
     enable-ssh: true
   properties:
-    TENANT_HOST_PATTERN: "^(.*)-brestfox-(.*).${default-domain}" # TENANT will be determined only by first regx group, left second group as wildcard since space name could be different than actual host name
+    TENANT_HOST_PATTERN: "^(.*)-btprestfox-(.*).${default-domain}" # TENANT will be determined only by first regx group, left second group as wildcard since space name could be different than actual host name
   requires:
     - name: BTP-Restfox-MT-xsuaa
     - name: BTP-Restfox-MT-dest
@@ -90,6 +91,7 @@ modules:
         SUBSCRIPTION_URL: ~{app-protocol}://\${tenant_subdomain}-~{app-host}.${default-domain} # TODO: create route in provider space (maually create route for now)
     - name: BTP-Restfox-MT-xsuaa
     - name: BTP-Restfox-MT-registry
+    - name: BTP-Restfox-MT-db
     - name: BTP-Restfox-MT-conn
     - name: BTP-Restfox-MT-dest
   parameters:
@@ -99,38 +101,38 @@ modules:
     - name: mtx-api
       properties:
         mtx-url: ${default-url}
-- name: BTP-Restfox-MT-dest-content
-  type: com.sap.application.content
-  requires:
-  - name: srv-api
-  - name: BTP-Restfox-MT-dest
-    parameters:
-      content-target: true
-  - name: BTP-Restfox-MT-xsuaa
-    parameters:
-      service-key:
-        name: BTP-Restfox-MT-xsuaa-key
-  parameters:
-    content:
-      instance:
-        destinations:
-        - Name: BTP-Restfox-MT-xsuaa
-          Authentication: OAuth2UserTokenExchange
-          ServiceInstanceName: BTP-Restfox-MT-xsuaa
-          ServiceKeyName: BTP-Restfox-MT-xsuaa-key
-          sap.cloud.service: cvx.poc.dynamicbackend
-        - Name: BTP-Restfox-MT-srv
-          Authentication: OAuth2ClientCredentials
-          Description: BTP-Restfox-MT CAP service
-          HTML5.DynamicDestination: true
-          HTML5.ForwardAuthToken: true
-          ServiceInstanceName: BTP-Restfox-MT-xsuaa
-          ServiceKeyName: BTP-Restfox-MT-xsuaa-key
-          sap.cloud.service: cvx.poc.dynamicbackend
-          URL: ~{srv-api/srv-url}
-        existing_destinations_policy: update
-  build-parameters:
-    no-source: true
+# - name: BTP-Restfox-MT-dest-content
+#   type: com.sap.application.content
+#   requires:
+#   - name: srv-api
+#   - name: BTP-Restfox-MT-dest
+#     parameters:
+#       content-target: true
+#   - name: BTP-Restfox-MT-xsuaa
+#     parameters:
+#       service-key:
+#         name: BTP-Restfox-MT-xsuaa-key
+#   parameters:
+#     content:
+#       instance:
+#         destinations:
+#         - Name: BTP-Restfox-MT-xsuaa
+#           Authentication: OAuth2UserTokenExchange
+#           ServiceInstanceName: BTP-Restfox-MT-xsuaa
+#           ServiceKeyName: BTP-Restfox-MT-xsuaa-key
+#           sap.cloud.service: cvx.poc.dynamicbackend
+#         - Name: BTP-Restfox-MT-srv
+#           Authentication: OAuth2ClientCredentials
+#           Description: BTP-Restfox-MT CAP service
+#           HTML5.DynamicDestination: true
+#           HTML5.ForwardAuthToken: true
+#           ServiceInstanceName: BTP-Restfox-MT-xsuaa
+#           ServiceKeyName: BTP-Restfox-MT-xsuaa-key
+#           sap.cloud.service: cvx.poc.dynamicbackend
+#           URL: ~{srv-api/srv-url}
+#         existing_destinations_policy: update
+#   build-parameters:
+#     no-source: true
 resources:
 - name: BTP-Restfox-MT-xsuaa
   type: org.cloudfoundry.managed-service
@@ -139,7 +141,7 @@ resources:
       xsappname: BTP-Restfox-MT-${space}
       tenant-mode: shared
     path: ./xs-security.json
-    service: xsxsuaa
+    service: xsuaa
     service-name: BTP-Restfox-MT-xsuaa
     service-plan: application
 - name: BTP-Restfox-MT-registry
@@ -162,6 +164,11 @@ resources:
         onUnSubscriptionAsync: true
         onUpdateDependenciesAsync: true
         callbackTimeoutMillis: 300000 # Increase if your deployments are taking longer than that
+- name: BTP-Restfox-MT-db
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: service-manager
+    service-plan: container
 - name: BTP-Restfox-MT-dest
   type: org.cloudfoundry.managed-service
   parameters:
