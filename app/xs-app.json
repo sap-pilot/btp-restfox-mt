@@ -1,5 +1,5 @@
 {
-    "welcomeFile": "/index.html",
+    "welcomeFile": "/ui/index.html",
     "authenticationMethod": "route",
     "logout": {
         "logoutEndpoint": "/logout",
@@ -16,12 +16,21 @@
             "source": "^/srv/(.*)$",
             "target": "$1",
             "destination": "srv-api",
-            "csrfProtection": true
+            "authenticationType": "xsuaa",
+            "csrfProtection": false
         },
         {
-            "source": "^/(.*)$",
+            "source": "^/src/(.*)$",
+            "target": "$1",
+            "localDir": "./ui/src",
+            "authenticationType": "xsuaa",
+            "cacheControl": "max-age=0, must-revalidate"
+        },
+        {
+            "source": "^/ui/(.*)$",
             "target": "$1",
             "localDir": "./ui/dist",
+            "authenticationType": "xsuaa",
             "cacheControl": "max-age=0, must-revalidate"
         }
     ]

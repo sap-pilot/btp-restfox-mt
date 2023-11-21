@@ -1,4 +1,5 @@
 @path: '/dest'
 service DestService @(requires: 'authenticated-user') {
-    function call() returns String;
+    action postDestination() returns String;
+    function getDestination() returns String;
 }

@@ -1,5 +1,5 @@
 {
-    "welcomeFile": "index.html",
+    "welcomeFile": "/ui/index.html",
     "authenticationMethod": "none",
     "sessionTimeout": 1440,
     "routes": [
@@ -17,7 +17,13 @@
             "csrfProtection": false
         },
         {
-            "source": "^/(.*)$",
+            "source": "^/src/(.*)$",
+            "target": "$1",
+            "localDir": "../ui/src",
+            "cacheControl": "max-age=0, must-revalidate"
+        },
+        {
+            "source": "^/ui/(.*)$",
             "target": "$1",
             "localDir": "../ui/dist",
             "cacheControl": "max-age=0, must-revalidate",

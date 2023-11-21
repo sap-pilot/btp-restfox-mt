@@ -4,11 +4,20 @@ ID: BTP-Restfox
 version: 0.0.1
 description: "BTP Rest client to call destinations like Postman based on Restfox"
 modules:
+
 - name: BTP-Restfox-srv
   type: nodejs
   path: gen/srv
+  build-parameters:
+    ignore:
+    - default-*.json
+    - .env
+    - '*node_modules*'
   parameters:
     buildpack: nodejs_buildpack
+    memory: 256M
+    disk-quota: 512M
+    enable-ssh: true
   properties:
     DEST_OVERRIDE_WHITELIST_EXP: '(.*)'
   provides:
@@ -19,11 +28,7 @@ modules:
     - name: BTP-Restfox-uaa
     - name: BTP-Restfox-conn
     - name: BTP-Restfox-dest
-  build-parameters:
-    ignore:
-    - default-*.json
-    - .env
-    - '*node_modules*'
+
 - name: BTP-Restfox-app
   type: approuter.nodejs
   path: app
@@ -32,11 +37,14 @@ modules:
       - default-*.json
       - .env
       - "*node_modules*"
+      - web-standalone/node_modules
+      - ui/node_modules
   parameters:
-    memory: 256M
     host: btp-restfox-${space}
-    disk-quota: 256M
+    memory: 256M
+    disk-quota: 512M
     keep-existing-routes: true
+    enable-ssh: true
   requires:
     - name: BTP-Restfox-uaa
     - name: BTP-Restfox-dest
@@ -48,6 +56,7 @@ modules:
         url: ~{srv-url}
         timeout: 600000
         forwardAuthToken: true
+
 - name: BTP-Restfox-dest-content
   type: com.sap.application.content
   requires:
@@ -80,7 +89,9 @@ modules:
         existing_destinations_policy: update
   build-parameters:
     no-source: true
+
 resources:
+
 - name: BTP-Restfox-dest
   type: org.cloudfoundry.managed-service
   parameters:
@@ -91,6 +102,7 @@ resources:
     service-plan: lite
   requires:
   - name: srv-api
+
 - name: BTP-Restfox-uaa
   type: org.cloudfoundry.managed-service
   parameters:
@@ -100,14 +112,17 @@ resources:
     service: xsuaa
     service-name: BTP-Restfox-uaa
     service-plan: application
+
 - name: BTP-Restfox-conn
   type: org.cloudfoundry.managed-service
   parameters:
     service: connectivity
     service-plan: lite
+    
 parameters:
-  deploy_mode: html5-repo
+#  deploy_mode: html5-repo
   enable-parallel-deployments: true
+
 build-parameters:
   before-all:
   - builder: custom

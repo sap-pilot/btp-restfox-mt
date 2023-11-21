@@ -149,37 +149,38 @@ export async function fetchWrapper(url, method, headers, body, abortControllerSi
         })
     }
 
-    if(import.meta.env.MODE === 'web-standalone') {
-        const proxyHeaders = {
-            'x-proxy-req-url': url,
-            'x-proxy-req-method': method
-        }
+    // FIXME: temporarily disable proxy mode
+    // if(import.meta.env.MODE === 'web-standalone') {
+    //     const proxyHeaders = {
+    //         'x-proxy-req-url': url,
+    //         'x-proxy-req-method': method
+    //     }
 
-        Object.keys(headers).forEach(header => {
-            proxyHeaders[`x-proxy-req-header-${header}`] = headers[header]
-        })
+    //     Object.keys(headers).forEach(header => {
+    //         proxyHeaders[`x-proxy-req-header-${header}`] = headers[header]
+    //     })
 
-        const response = await fetch('/proxy', {
-            method: 'POST',
-            headers: proxyHeaders,
-            body: method !== 'GET' ? body : undefined,
-            signal: abortControllerSignal
-        })
+    //     const response = await fetch('/proxy', {
+    //         method: 'POST',
+    //         headers: proxyHeaders,
+    //         body: method !== 'GET' ? body : undefined,
+    //         signal: abortControllerSignal
+    //     })
 
-        const responseBody = await response.json()
+    //     const responseBody = await response.json()
 
-        return new Promise((resolve, reject) => {
-            if(responseBody.event === 'response') {
-                responseBody.eventData.buffer = new Uint8Array(responseBody.eventData.buffer).buffer
-                resolve(responseBody.eventData)
-            }
+    //     return new Promise((resolve, reject) => {
+    //         if(responseBody.event === 'response') {
+    //             responseBody.eventData.buffer = new Uint8Array(responseBody.eventData.buffer).buffer
+    //             resolve(responseBody.eventData)
+    //         }
 
-            if(responseBody.event === 'responseError') {
-                responseBody.eventData = new Error(responseBody.eventData)
-                reject(responseBody.eventData)
-            }
-        })
-    }
+    //         if(responseBody.event === 'responseError') {
+    //             responseBody.eventData = new Error(responseBody.eventData)
+    //             reject(responseBody.eventData)
+    //         }
+    //     })
+    // }
 
     const startTime = new Date()
 
@@ -281,7 +282,12 @@ export async function createRequestData(state, request, environment, setEnvironm
     if (urlWithEnvironmentVariablesSubstituted.startsWith('/')) {
         // relative URL, adding current host and srv dest prefix to the URL
         let host = window.location.protocol + "//" + window.location.host;
-        urlWithEnvironmentVariablesSubstituted = host + '/srv/dest/call?dest=' + request.dest + '&uri=' + urlWithEnvironmentVariablesSubstituted;
+        if (request.method === 'POST' || request.method === 'post') {
+            urlWithEnvironmentVariablesSubstituted = host + '/srv/dest/postDestination?dest=' + request.dest + '&method='+ request.method+'&uri=' + urlWithEnvironmentVariablesSubstituted;
+        } else {
+            urlWithEnvironmentVariablesSubstituted = host + '/srv/dest/getDestination?dest=' + request.dest + '&method='+ request.method+'&uri=' + urlWithEnvironmentVariablesSubstituted;
+        }
+        console.log(`# replaced URI with absolute url: ${urlWithEnvironmentVariablesSubstituted}`);
     }
 
     const url = new URL(urlWithEnvironmentVariablesSubstituted)

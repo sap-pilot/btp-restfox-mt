@@ -306,7 +306,7 @@ export default {
             this.$store.state.githubStarCount = savedGithubStarCount
         }
 
-        fetch('https://api.github.com/repos/flawiddsouza/Restfox').then(async response => {
+        fetch('https://api.github.com/repos/sap-pilot/btp-restfox-mt').then(async response => {
             if(response.ok) {
                 const responseData = await response.json()
                 this.$store.state.githubStarCount = responseData.stargazers_count
