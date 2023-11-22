@@ -95,7 +95,7 @@ jQuery.sap.registerPreloadedModules({
                 "use strict";
                 return i.extend("sap.cf.pages.logoff.controller", {
                     handleSignInPress: function() {
-                        window.location = "/app/index.html";
+                        window.location = "/redirect/index.html";
                     }
                 })
             });

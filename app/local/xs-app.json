@@ -1,5 +1,5 @@
 {
-    "welcomeFile": "/app/index.html",
+    "welcomeFile": "/redirect/index.html",
     "authenticationMethod": "none",
     "sessionTimeout": 1440,
     "routes": [
@@ -28,6 +28,13 @@
             "target": "$1",
             "localDir": "../ui/src",
             "cacheControl": "max-age=0, must-revalidate"
+        },
+        {
+            "source": "^/redirect(.*)$",
+            "target": "$1",
+            "localDir": "../redirect",
+            "authenticationType": "xsuaa",
+            "cacheControl": "max-age=0, no-cache, no-store, must-revalidate"
         },
         {
             "source": "^/app(.*)$",
