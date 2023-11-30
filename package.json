@@ -48,6 +48,7 @@
             },
             "BTP_DUMMY": {
                 "kind": "rest",
+                "suppressRemoteResponseBody": false,
                 "credentials": {
                     "destination": "BTP_DUMMY",
                     "path": "",

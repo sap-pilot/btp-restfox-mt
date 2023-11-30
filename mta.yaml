@@ -54,7 +54,7 @@ modules:
     keep-existing-routes: true
     enable-ssh: true
   properties:
-    TENANT_HOST_PATTERN: "^(.*)-btprestfox-(.*).${default-domain}" # TENANT will be determined only by first regx group, left second group as wildcard since space name could be different than actual host name
+    TENANT_HOST_PATTERN: "^(.*)-btprestfox(.*).${default-domain}" # TENANT will be determined only by first regx group, left second group as wildcard since space name could be different than actual host name
   requires:
     - name: BTP-Restfox-MT-xsuaa
     - name: BTP-Restfox-MT-dest

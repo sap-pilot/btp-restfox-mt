@@ -7,7 +7,7 @@ const appEnv = cfenv.getAppEnv();
 const APP_NAME = "BTP-Restfox-MT-app"; // local app name the route should bind to, should match mta.yaml approuter name
 const CF_API_DESTINATION_NAME = "BTP_CFAPI"; // shared CF API destination name (for all MTE solutions), must match destination name defined in mta.ytaml
 const URL_APP_NAME = "btprestfox"; // short app name to identify the app in URL, must match mta.yaml TENANT_HOST_PATTERN
-const URL_POSTFIX = "-"+URL_APP_NAME + "-" + appEnv.app.space_name.toLowerCase().replace(/_/g,"-");
+const URL_POSTFIX = "-"+URL_APP_NAME;// + "-" + appEnv.app.space_name.toLowerCase().replace(/_/g,"-");
 
 // services dependencies
 const xsenv = require('@sap/xsenv');
