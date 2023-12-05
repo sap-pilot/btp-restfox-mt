@@ -151,8 +151,8 @@ export async function fetchWrapper(url, method, headers, body, abortControllerSi
 
     // if(import.meta.env.MODE === 'web-standalone') {
     // MOD: use proxy in destination mode
-    const startTime = new Date();
-    let response = null;
+    const startTime = new Date()
+    let response = null
     if(url.dest) {
         const proxyHeaders = {
             'x-proxy-req-url': url,
@@ -160,14 +160,16 @@ export async function fetchWrapper(url, method, headers, body, abortControllerSi
             'x-proxy-req-dest': url.dest,
             'x-proxy-req-uri':  url.uri,
             'content-type' : 'application/json'
-        };
+        }
         Object.keys(headers).forEach(header => {
             proxyHeaders[`x-proxy-req-header-${header}`] = headers[header]
-        });
+        })
+        const requestBody = { 'requestBody': body }
+        const sRequestBody = JSON.stringify(requestBody)
         response = await fetch('/srv/dest/proxy', {
             method: 'POST',
             headers: proxyHeaders,
-            body: method !== 'GET' ? body : undefined,
+            body: method !== 'GET' ? sRequestBody : undefined,
             signal: abortControllerSignal
         })
     } else {
@@ -177,21 +179,21 @@ export async function fetchWrapper(url, method, headers, body, abortControllerSi
             headers,
             body: method !== 'GET' ? body : undefined,
             signal: abortControllerSignal
-        });
+        })
     }
 
 
-    const endTime = new Date();
+    const endTime = new Date()
 
-    const status = response.status;
-    const statusText = response.statusText;
-    const responseHeaders = [...response.headers.entries()];
+    const status = response.status
+    const statusText = response.statusText
+    const responseHeaders = [...response.headers.entries()]
 
-    const responseBlob = await response.blob();
-    const mimeType = responseBlob.type;
-    const buffer = await responseBlob.arrayBuffer();
+    const responseBlob = await response.blob()
+    const mimeType = responseBlob.type
+    const buffer = await responseBlob.arrayBuffer()
 
-    const timeTaken = endTime - startTime;
+    const timeTaken = endTime - startTime
 
     return {
         status,
@@ -200,7 +202,7 @@ export async function fetchWrapper(url, method, headers, body, abortControllerSi
         mimeType,
         buffer,
         timeTaken
-    };
+    }
 }
 
 export async function createRequestData(state, request, environment, setEnvironmentVariable, plugins) {
