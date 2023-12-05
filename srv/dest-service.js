@@ -41,7 +41,6 @@ const callDestination = async (req) => {
         }
         throw e;
     }
-
     const endTime = new Date().getTime();
     console.log("# callDestination completed, took time: "+(endTime-startTime)+" msecs");
     console.log(ret);
