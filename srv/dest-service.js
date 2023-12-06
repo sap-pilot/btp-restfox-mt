@@ -28,7 +28,7 @@ const callDestination = async (req) => {
     req.req.query.destOverrides = "BTP_DUMMY|"+dest;
     // call actual backend   
     const service = await cds.connect.to(resolveDestination(req,"BTP_DUMMY"));
-    const query = {query: method+ ' ' + uri, data: data, headers: headers};
+    const query = {method: method, path: uri? uri : '/', data: data, headers: headers};
     console.log(JSON.stringify(query));
     let ret = null;
     try {

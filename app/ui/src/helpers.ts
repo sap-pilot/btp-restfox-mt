@@ -272,17 +272,17 @@ export async function createRequestData(state, request, environment, setEnvironm
     }
 
     // MOD: add hostname to relative URL and destination to url object;
-    let url = null, host = null;
+    let url = null, host = null
     if (!urlWithEnvironmentVariablesSubstituted.startsWith('http')) {
         // relative URL, adding current host and srv dest prefix to the URL
-        host = window.location.protocol + "//" + window.location.host;
-        url = new URL(urlWithEnvironmentVariablesSubstituted, host);
+        host = window.location.protocol + '//' + window.location.host
+        url = new URL(urlWithEnvironmentVariablesSubstituted, host)
     } else {
         url = new URL(urlWithEnvironmentVariablesSubstituted)
     }
     if (request.dest) {
         // destination specified in request, now add to headers
-       url.dest = request.dest;
+        url.dest = request.dest
         // method and URL will be added later
     }
 
@@ -297,7 +297,10 @@ export async function createRequestData(state, request, environment, setEnvironm
 
     // MOD: add uri (relative URL) to url object
     if (host) {
-        url.uri = url.toString().substring(host.length);
+        url.uri = url.toString().substring(host.length)
+        if (url.uri === '/' && !urlWithEnvironmentVariablesSubstituted) {
+            url.uri = '' // remove single slash
+        }
     }
 
     const headers = {}
