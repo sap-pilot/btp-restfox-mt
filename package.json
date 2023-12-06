@@ -26,6 +26,7 @@
         "start": "npx --node-options=\"--inspect\" cds-serve",
         "start-normal": "cds-serve",
         "debug-srv": "cf ssh -N -T -L 9229:127.0.0.1:9229 BTP-Restfox-MT-srv",
+        "debug-mtx": "cf ssh -N -T -L 9229:127.0.0.1:9229 BTP-Restfox-MT-mtx",
         "logs-srv": "cf logs BTP-Restfox-MT-srv",
         "build": "mbt build -p=cf --mtar=BTP-Restfox-MT.mtar",
         "build-srv": "npx -p @sap/cds-dk cds build --production",

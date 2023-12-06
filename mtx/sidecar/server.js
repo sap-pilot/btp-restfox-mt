@@ -36,39 +36,53 @@ cds.on('served', async () => {
     deployment.before('subscribe', async (req) => {
         // HDI container credentials are not yet available here
         const { tenant, metadata } = req.data;
-        let tenantHost = metadata.subscribedSubdomain + URL_POSTFIX;
-        let tenantURL = 'https:\/\/' + tenantHost + /\.(.*)/gm.exec(appEnv.app.application_uris[0])[0];
-        console.log("Subscribing tenant["+tenant+"], host=["+tenantHost+"], url="+tenantURL);
-        //await next();
-        createRoute(tenantHost, APP_NAME).then(
-            function (res2) {
-                console.log('Subscribe: - Create Route: ', metadata.subscribedTenantId, tenantHost, tenantURL);
-                return tenantURL;
-            },
-            function (err) {
-                console.log('Error while creatig Route: ', metadata.subscribedTenantId, tenantHost, tenantURL + ": ");
-                console.log(err);
-                return '';
-            });
-        return tenantURL;
+        if ( metadata && metadata.subscribedSubdomain ) {
+            // metadata valid, proceed to create route
+            let tenantHost = metadata.subscribedSubdomain + URL_POSTFIX;
+            let tenantURL = 'https:\/\/' + tenantHost + /\.(.*)/gm.exec(appEnv.app.application_uris[0])[0];
+            console.log("Subscribing tenant["+tenant+"], host=["+tenantHost+"], url="+tenantURL);
+            //await next();
+            createRoute(tenantHost, APP_NAME).then(
+                function (res2) {
+                    console.log('Subscribe: - Create Route: ', metadata.subscribedTenantId, tenantHost, tenantURL);
+                    return tenantURL;
+                },
+                function (err) {
+                    console.log('Error while creatig Route: ', metadata.subscribedTenantId, tenantHost, tenantURL + ": ");
+                    console.log(err);
+                    return '';
+                });
+            return tenantURL;
+        } else {
+            // not able to determine subdomain or URL hence skip deleting route
+            console.log("Warning: not able to create route for tenant["+tenant+"] because metadata is missing");
+            return '';
+        }
     });
 
     deployment.after('unsubscribe', async (result, req) => {
         const { container } = req.data.options;
         const { tenant, metadata } = req.data;
-        let tenantHost = metadata.subscribedSubdomain + URL_POSTFIX;
-        console.log("Unsubscribing tenant["+tenant+"], host=["+tenantHost+"]");
-        deleteRoute(tenantHost, APP_NAME).then(
-            async function (res2) {
-                console.log('Unsubscribe: - Delete Route: ', metadata.subscribedTenantId);
-                return metadata.subscribedTenantId;
-            },
-            function (err) {
-                console.log('Error while deleting Route: ', metadata.subscribedTenantId, tenantHost, tenantURL + ": ");
-                console.log(err);
-                return '';
-            });
-        return metadata.subscribedTenantId;
+        if ( metadata && metadata.subscribedSubdomain ) {
+            // metadata valid, proceed to delete route
+            let tenantHost = metadata.subscribedSubdomain + URL_POSTFIX;
+            console.log("Unsubscribing tenant["+tenant+"], host=["+tenantHost+"]");
+            deleteRoute(tenantHost, APP_NAME).then(
+                async function (res2) {
+                    console.log('Unsubscribe: - Delete Route: ', metadata.subscribedTenantId);
+                    return metadata.subscribedTenantId;
+                },
+                function (err) {
+                    console.log('Error while deleting Route: ', metadata.subscribedTenantId, tenantHost, tenantURL + ": ");
+                    console.log(err);
+                    return '';
+                });
+            return metadata.subscribedTenantId;
+        } else {
+            // not able to determine subdomain or URL hence skip deleting route
+            console.log("Warning: not able to delete route for tenant["+tenant+"] because metadata is missing");
+            return tenant;
+        }
     });
 });
 

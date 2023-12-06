@@ -88,7 +88,7 @@ modules:
   requires:
     - name: app-api
       properties:
-        SUBSCRIPTION_URL: ~{app-protocol}://\${tenant_subdomain}-~{app-host}.${default-domain} # TODO: create route in provider space (maually create route for now)
+        SUBSCRIPTION_URL: ~{app-protocol}://\${tenant_subdomain}-btprestfox.${default-domain} 
     - name: BTP-Restfox-MT-xsuaa
     - name: BTP-Restfox-MT-registry
     - name: BTP-Restfox-MT-db
@@ -97,42 +97,11 @@ modules:
   parameters:
     memory: 256M
     disk-quota: 512M
+    enable-ssh: true
   provides:
     - name: mtx-api
       properties:
         mtx-url: ${default-url}
-# - name: BTP-Restfox-MT-dest-content
-#   type: com.sap.application.content
-#   requires:
-#   - name: srv-api
-#   - name: BTP-Restfox-MT-dest
-#     parameters:
-#       content-target: true
-#   - name: BTP-Restfox-MT-xsuaa
-#     parameters:
-#       service-key:
-#         name: BTP-Restfox-MT-xsuaa-key
-#   parameters:
-#     content:
-#       instance:
-#         destinations:
-#         - Name: BTP-Restfox-MT-xsuaa
-#           Authentication: OAuth2UserTokenExchange
-#           ServiceInstanceName: BTP-Restfox-MT-xsuaa
-#           ServiceKeyName: BTP-Restfox-MT-xsuaa-key
-#           sap.cloud.service: cvx.poc.dynamicbackend
-#         - Name: BTP-Restfox-MT-srv
-#           Authentication: OAuth2ClientCredentials
-#           Description: BTP-Restfox-MT CAP service
-#           HTML5.DynamicDestination: true
-#           HTML5.ForwardAuthToken: true
-#           ServiceInstanceName: BTP-Restfox-MT-xsuaa
-#           ServiceKeyName: BTP-Restfox-MT-xsuaa-key
-#           sap.cloud.service: cvx.poc.dynamicbackend
-#           URL: ~{srv-api/srv-url}
-#         existing_destinations_policy: update
-#   build-parameters:
-#     no-source: true
 resources:
 - name: BTP-Restfox-MT-xsuaa
   type: org.cloudfoundry.managed-service
