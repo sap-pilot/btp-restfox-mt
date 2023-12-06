@@ -86,7 +86,7 @@
                         <tr v-for="header in response.headers">
                             <td style="white-space: nowrap">{{ header[0] }}</td>
                             <template v-if="header[0] && header[0].includes('-json')">
-                                <td style="word-break: break-word"><pre style="margin: 0px">{{ JSON.stringify(JSON.parse(header[1]), null, 2) }}</pre></td>
+                                <td style="word-break: break-word"><pre style="margin: 0px; white-space: pre-wrap; word-break: break-all">{{ JSON.stringify(JSON.parse(header[1]), null, 2) }}</pre></td>
                             </template>
                             <template v-else>
                                 <td style="word-break: break-word">{{ header[1] }}</td>

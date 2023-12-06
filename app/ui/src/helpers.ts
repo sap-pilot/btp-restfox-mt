@@ -169,7 +169,7 @@ export async function fetchWrapper(url, method, headers, body, abortControllerSi
         response = await fetch('/srv/dest/proxy', {
             method: 'POST',
             headers: proxyHeaders,
-            body: method !== 'GET' ? sRequestBody : undefined,
+            body: sRequestBody, //method !== 'GET' ? sRequestBody : undefined,
             signal: abortControllerSignal
         })
     } else {
