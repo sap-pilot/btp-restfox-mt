@@ -1,6 +1,7 @@
 {
     "welcomeFile": "/redirect/index.html",
     "authenticationMethod": "route",
+    "sessionTimeout": 7200,
     "logout": {
         "logoutEndpoint": "/logout",
         "logoutPage": "/public/logout.html"

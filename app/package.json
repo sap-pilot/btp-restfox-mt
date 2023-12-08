@@ -10,8 +10,9 @@
       "build": "cd ui && npm ci && vite build --mode web-standalone && cd ..",
       "deploy": "cf push BTP-Restfox-MT-app",
       "bd": "cd ui && npm ci && vite build --mode web-standalone && cd .. && cf push BTP-Restfox-MT-app",
-      "start": "node node_modules/@sap/approuter/approuter.js",
-      "local": "PORT=3012 node node_modules/@sap/approuter/approuter.js -w ./local"
+      "start-normal": "node node_modules/@sap/approuter/approuter.js",
+      "start": "node --inspect node_modules/@sap/approuter/approuter.js",
+      "local": "PORT=3012 node --inspect node_modules/@sap/approuter/approuter.js -w ./local"
     }
   }
   
