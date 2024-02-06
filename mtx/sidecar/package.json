@@ -1,13 +1,13 @@
 {
   "name": "btp-restfox-mt-mtx",
   "dependencies": {
-    "@sap-cloud-sdk/http-client": "^3.8.1",
+    "@sap-cloud-sdk/http-client": "^3",
     "@sap/cds": "^7",
     "@sap/cds-hana": "^2",
-    "@sap/cds-mtxs": "^1.13.0",
-    "@sap/xsenv": "^3.4.0",
+    "@sap/cds-mtxs": "^1",
+    "@sap/xsenv": "^3",
     "@sap/xssec": "^3",
-    "cfenv": "^1.2.4",
+    "cfenv": "^1",
     "express": "^4",
     "passport": ">=0.6.0"
   },
