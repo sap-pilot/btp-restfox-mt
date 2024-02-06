@@ -1,7 +1,7 @@
 {
     "name": "btp-restfox-mt-approuter",
     "dependencies": {
-      "@sap/approuter": "^14.0.0"
+      "@sap/approuter": "^16"
     },
     "engines": {
       "node": "^18.0.0"
